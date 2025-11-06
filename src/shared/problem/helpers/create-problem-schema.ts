@@ -1,19 +1,19 @@
 import { z } from 'zod';
 
-import type { HttpErrorCode } from '@/shared/constants/http-error-code';
-import type { HttpStatusCode } from '@/shared/types';
+import type { ErrorStatusCode } from '@/shared/problem/types';
+import type { HttpErrorStatusName } from '@/shared/types';
 
 import { HttpStatusCodes } from '@/shared/constants/http-status-codes';
 import { HttpErrorDetails } from '@/shared/problem/constants/http-error-details';
+import { ErrorReasonPhrases } from '@/shared/problem/constants/http-status-reason-phrases';
 
-import { HttpStatusPhrases } from '../constants/http-status-phrases';
+type HttpErrorDetail<C extends HttpErrorStatusName> = (typeof HttpErrorDetails)[C];
+type HttpErrorTitle<C extends HttpErrorStatusName> = (typeof ErrorReasonPhrases)[C];
 
-type HttpDetail<C extends HttpErrorCode> = (typeof HttpErrorDetails)[C];
-
-export function createProblemSchema<C extends HttpErrorCode>(code: C, message?: string) {
-  const httpStatusCode: HttpStatusCode<C> = HttpStatusCodes[code];
-  const errorDetail: HttpDetail<C> = HttpErrorDetails[code];
-  const title = HttpStatusPhrases[code];
+export function createProblemSchema<C extends HttpErrorStatusName>(code: C, message?: string) {
+  const httpStatusCode: ErrorStatusCode<C> = HttpStatusCodes[code];
+  const errorDetail: HttpErrorDetail<C> = HttpErrorDetails[code];
+  const title: HttpErrorTitle<C> = ErrorReasonPhrases[code];
 
   return z.object({
     code: z.literal(code),

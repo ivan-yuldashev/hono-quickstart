@@ -2,8 +2,7 @@ import type { OpenAPIHono, RouteConfig, RouteHandler } from '@hono/zod-openapi';
 import type { Schema } from 'hono';
 import type { PinoLogger } from 'hono-pino';
 
-import type { HttpErrorCode } from '@/shared/constants/http-error-code';
-import type { HttpStatusCodes } from '@/shared/constants/http-status-codes';
+import type { HttpStatusName } from '@/shared/constants/http-status-name';
 
 export interface AppBindings {
   Variables: {
@@ -14,4 +13,56 @@ export interface AppBindings {
 export type AppOpenAPI<S extends Schema = never> = OpenAPIHono<AppBindings, S>;
 export type AppRouteHandler<R extends RouteConfig> = RouteHandler<R, AppBindings>;
 
-export type HttpStatusCode<C extends HttpErrorCode> = (typeof HttpStatusCodes)[C];
+export type ContentfulHttpStatusName = Exclude<
+  HttpStatusName,
+  | 'INSUFFICIENT_SPACE_ON_RESOURCE'
+  | 'METHOD_FAILURE'
+  | 'NO_CONTENT'
+  | 'NOT_MODIFIED'
+  | 'RESET_CONTENT'
+  | 'SWITCHING_PROTOCOLS'
+>;
+
+export type HttpErrorStatusName = Extract<
+  ContentfulHttpStatusName,
+  | 'BAD_GATEWAY'
+  | 'BAD_REQUEST'
+  | 'CONFLICT'
+  | 'EXPECTATION_FAILED'
+  | 'FAILED_DEPENDENCY'
+  | 'FORBIDDEN'
+  | 'GATEWAY_TIMEOUT'
+  | 'GONE'
+  | 'HTTP_VERSION_NOT_SUPPORTED'
+  | 'IM_A_TEAPOT'
+  | 'INSUFFICIENT_STORAGE'
+  | 'INTERNAL_SERVER_ERROR'
+  | 'LENGTH_REQUIRED'
+  | 'LOCKED'
+  | 'LOOP_DETECTED'
+  | 'METHOD_NOT_ALLOWED'
+  | 'MISDIRECTED_REQUEST'
+  | 'NETWORK_AUTHENTICATION_REQUIRED'
+  | 'NOT_ACCEPTABLE'
+  | 'NOT_EXTENDED'
+  | 'NOT_FOUND'
+  | 'NOT_IMPLEMENTED'
+  | 'PAYMENT_REQUIRED'
+  | 'PRECONDITION_FAILED'
+  | 'PRECONDITION_REQUIRED'
+  | 'PROXY_AUTHENTICATION_REQUIRED'
+  | 'REQUEST_HEADER_FIELDS_TOO_LARGE'
+  | 'REQUEST_TIMEOUT'
+  | 'REQUEST_TOO_LONG'
+  | 'REQUEST_URI_TOO_LONG'
+  | 'REQUESTED_RANGE_NOT_SATISFIABLE'
+  | 'SERVICE_UNAVAILABLE'
+  | 'TOO_EARLY'
+  | 'TOO_MANY_REQUESTS'
+  | 'UNAUTHORIZED'
+  | 'UNAVAILABLE_FOR_LEGAL_REASONS'
+  | 'UNPROCESSABLE_ENTITY'
+  | 'UNSUPPORTED_MEDIA_TYPE'
+  | 'UPGRADE_REQUIRED'
+  | 'VARIANT_ALSO_NEGOTIATES'
+>;

@@ -2,7 +2,7 @@
 
 A starter template for building fully documented type-safe JSON APIs with Hono and Open API. This project is based on the original work of [w3cj/hono-open-api-starter](https://github.com/w3cj/hono-open-api-starter).
 
-- [Hono Open API Starter](#hono-open-api-starter)
+- [Hono Quickstart](#hono-open-api-starter)
   - [Included](#included)
   - [Philosophy](#philosophy)
   - [Setup](#setup)

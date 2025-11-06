@@ -6,8 +6,16 @@ import { DatabaseError } from 'pg';
 
 import type { AppBindings } from '@/shared/types';
 
+import { ClientErrorStatusCodes, HttpStatusCodes, ServerErrorStatusCodes } from '@/shared/constants/http-status-codes';
 import { LogLevel } from '@/shared/constants/log-level';
+import { problemResponse } from '@/shared/problem/helpers/problem-response';
 import { problem } from '@/shared/problem/problem';
+import { valueToKeyMap } from '@/shared/utilities/value-to-key-map';
+
+export const HTTP_ERROR_CODE_TO_NAME_MAP = valueToKeyMap({
+  ...ClientErrorStatusCodes,
+  ...ServerErrorStatusCodes,
+});
 
 export function onError(err: Error, c: Context<AppBindings>) {
   const { method, path } = c.req;
@@ -45,18 +53,20 @@ export function onError(err: Error, c: Context<AppBindings>) {
   }
 
   if (err instanceof HTTPException) {
-    const logLevel = err.status < 500 ? LogLevel.WARN : LogLevel.ERROR;
+    const { status } = err;
 
-    // TODO: Review and implement missing use cases
-    // eslint-disable-next-line ts/switch-exhaustiveness-check
-    switch (err.status) {
-      case 401:
-        logger[logLevel]({ ...context, err }, 'Unauthorized');
-        return problem.unauthorized(c);
-      default:
-        logger[logLevel]({ ...context, err }, `Handled HTTPException: ${err.status}`);
-        return err.getResponse();
+    const logLevel = status < 500 && status !== -1 ? LogLevel.WARN : LogLevel.ERROR;
+    logger[logLevel]({ ...context, err }, `Handled HTTPException: ${err.message}`);
+    const errorCodeName = HTTP_ERROR_CODE_TO_NAME_MAP[status as keyof typeof HTTP_ERROR_CODE_TO_NAME_MAP];
+
+    if (errorCodeName === undefined) {
+      logger.error(
+        { ...context, err },
+        `HTTPException thrown with non-error status code: ${err.status}. Message: ${err.message}`,
+      );
     }
+
+    return problemResponse(c, errorCodeName ?? HttpStatusCodes.INTERNAL_SERVER_ERROR);
   }
 
   logger.error({ ...context, err }, `Unhandled error caught: ${err.message}`);

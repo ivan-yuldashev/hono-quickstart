@@ -3,7 +3,7 @@ import * as HttpStatusCodes from 'stoker/http-status-codes';
 import { jsonContent, jsonContentRequired } from 'stoker/openapi/helpers';
 
 import { loginSchema, registerSchema, selectUsersSchema } from '@/routes/auth/schemas';
-import { HttpErrorCode } from '@/shared/constants/http-error-code';
+import { HttpStatusName } from '@/shared/constants/http-status-name';
 import { Path } from '@/shared/constants/path';
 import { internalServerErrorResponse } from '@/shared/openapi/common-responses';
 import { createProblemSchemaWithExample } from '@/shared/problem/create-problem-schema-with-example';
@@ -28,11 +28,11 @@ export const login = createRoute({
     ...baseAuthRoute.responses,
     [HttpStatusCodes.OK]: jsonContent(selectUsersSchema, 'Login successful'),
     [HttpStatusCodes.UNAUTHORIZED]: jsonContent(
-      createProblemSchemaWithExample(HttpErrorCode.UNAUTHORIZED, '/', { message: 'Login or password is incorrect' }),
+      createProblemSchemaWithExample(HttpStatusName.UNAUTHORIZED, '/', { message: 'Login or password is incorrect' }),
       'Login or password is incorrect',
     ),
     [HttpStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
-      createProblemSchemaWithExample(HttpErrorCode.UNPROCESSABLE_ENTITY, Path.LOGIN, {
+      createProblemSchemaWithExample(HttpStatusName.UNPROCESSABLE_ENTITY, Path.LOGIN, {
         schema: selectUsersSchema,
         target: 'json',
       }),
@@ -63,12 +63,12 @@ export const register = createRoute({
   responses: {
     ...baseAuthRoute.responses,
     [HttpStatusCodes.CONFLICT]: jsonContent(
-      createProblemSchemaWithExample(HttpErrorCode.CONFLICT, Path.REGISTER),
+      createProblemSchemaWithExample(HttpStatusName.CONFLICT, Path.REGISTER),
       'User already exists',
     ),
     [HttpStatusCodes.CREATED]: jsonContent(selectUsersSchema, 'Register successful'),
     [HttpStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
-      createProblemSchemaWithExample(HttpErrorCode.UNPROCESSABLE_ENTITY, Path.REGISTER, {
+      createProblemSchemaWithExample(HttpStatusName.UNPROCESSABLE_ENTITY, Path.REGISTER, {
         schema: selectUsersSchema,
         target: 'json',
       }),

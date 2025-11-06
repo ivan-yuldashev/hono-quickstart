@@ -2,8 +2,8 @@ import type { ValidationTargets } from 'hono';
 
 import { z } from '@hono/zod-openapi';
 
-import type { HttpErrorCode } from '@/shared/constants/http-error-code';
 import type { TargetValue } from '@/shared/problem/types';
+import type { HttpErrorStatusName } from '@/shared/types';
 
 import { createProblem } from '@/shared/problem/create-problem';
 import { createProblemSchema } from '@/shared/problem/helpers/create-problem-schema';
@@ -15,26 +15,29 @@ interface Options<T extends TargetValue> {
   target: T;
 }
 
-type ValidationProblemSchema<C extends HttpErrorCode> = ReturnType<typeof createValidationProblemSchema<C>>;
-type ProblemSchema<C extends HttpErrorCode> = ReturnType<typeof createProblemSchema<C>>;
+type ValidationProblemSchema<C extends HttpErrorStatusName> = ReturnType<typeof createValidationProblemSchema<C>>;
+type ProblemSchema<C extends HttpErrorStatusName> = ReturnType<typeof createProblemSchema<C>>;
 
 function hasValidation<T extends TargetValue>(options: Options<T>): options is Options<T> {
   return 'schema' in options && 'target' in options;
 }
 
-export function createProblemSchemaWithExample<C extends HttpErrorCode>(
+export function createProblemSchemaWithExample<C extends HttpErrorStatusName>(
   code: C,
   instance: string,
   options?: { message?: string },
 ): ProblemSchema<C>;
 
-export function createProblemSchemaWithExample<C extends HttpErrorCode, T extends keyof ValidationTargets>(
+export function createProblemSchemaWithExample<C extends HttpErrorStatusName, T extends keyof ValidationTargets>(
   code: C,
   instance: string,
   options: Options<T>,
 ): ValidationProblemSchema<C>;
 
-export function createProblemSchemaWithExample<C extends HttpErrorCode, T extends keyof ValidationTargets = never>(
+export function createProblemSchemaWithExample<
+  C extends HttpErrorStatusName,
+  T extends keyof ValidationTargets = never,
+>(
   code: C,
   instance: string,
   options: { message?: string } | Options<T> = {},

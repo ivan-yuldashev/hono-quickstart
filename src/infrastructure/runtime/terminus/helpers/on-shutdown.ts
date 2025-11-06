@@ -9,5 +9,5 @@ export async function onShutdown() {
     pino.error('Error closing the DB pool.');
   }
 
-  pino.info('👋 HTTP server closed.');
+  pino.info('HTTP server closed.');
 }

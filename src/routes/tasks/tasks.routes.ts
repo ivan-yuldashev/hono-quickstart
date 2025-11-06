@@ -4,11 +4,11 @@ import { jsonContent, jsonContentRequired } from 'stoker/openapi/helpers';
 import { IdUUIDParamsSchema } from 'stoker/openapi/schemas';
 
 import { insertTasksSchema, patchTasksSchema, selectTaskSchema } from '@/routes/tasks/shemas';
-import { HttpErrorCode } from '@/shared/constants/http-error-code';
+import { HttpStatusName } from '@/shared/constants/http-status-name';
 import { Path } from '@/shared/constants/path';
+import { createPaginatedResponseSchema } from '@/shared/helpers/create-paginated-response-schema';
 import { internalServerErrorResponse, unauthorizedResponse } from '@/shared/openapi/common-responses';
 import { createProblemSchemaWithExample } from '@/shared/problem/create-problem-schema-with-example';
-import { createPaginatedResponseSchema } from '@/shared/problem/helpers/create-paginated-response-schema';
 import { paginationSchema } from '@/shared/schemas/pagination-schema';
 
 const tags = ['Tasks'];
@@ -25,14 +25,14 @@ const baseTaskRoute = {
 
 const taskNotFoundResponse = {
   [HttpStatusCodes.NOT_FOUND]: jsonContent(
-    createProblemSchemaWithExample(HttpErrorCode.NOT_FOUND, pathWithId),
+    createProblemSchemaWithExample(HttpStatusName.NOT_FOUND, pathWithId),
     'Task not found',
   ),
 };
 
 const invalidIdResponse = {
   [HttpStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
-    createProblemSchemaWithExample(HttpErrorCode.UNPROCESSABLE_ENTITY, pathWithId, {
+    createProblemSchemaWithExample(HttpStatusName.UNPROCESSABLE_ENTITY, pathWithId, {
       schema: IdUUIDParamsSchema,
       target: 'param',
     }),
@@ -51,7 +51,7 @@ export const list = createRoute({
     ...baseTaskRoute.responses,
     [HttpStatusCodes.OK]: jsonContent(createPaginatedResponseSchema(selectTaskSchema), 'The list of tasks'),
     [HttpStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
-      createProblemSchemaWithExample(HttpErrorCode.UNPROCESSABLE_ENTITY, Path.TASKS, {
+      createProblemSchemaWithExample(HttpStatusName.UNPROCESSABLE_ENTITY, Path.TASKS, {
         schema: paginationSchema,
         target: 'query',
       }),
@@ -71,7 +71,7 @@ export const create = createRoute({
     ...baseTaskRoute.responses,
     [HttpStatusCodes.CREATED]: jsonContent(selectTaskSchema, 'The created task'),
     [HttpStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
-      createProblemSchemaWithExample(HttpErrorCode.UNPROCESSABLE_ENTITY, Path.TASKS, {
+      createProblemSchemaWithExample(HttpStatusName.UNPROCESSABLE_ENTITY, Path.TASKS, {
         schema: insertTasksSchema,
         target: 'json',
       }),
@@ -108,11 +108,11 @@ export const patch = createRoute({
     ...taskNotFoundResponse,
     [HttpStatusCodes.OK]: jsonContent(selectTaskSchema, 'The updated task'),
     [HttpStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
-      createProblemSchemaWithExample(HttpErrorCode.UNPROCESSABLE_ENTITY, pathWithId, {
+      createProblemSchemaWithExample(HttpStatusName.UNPROCESSABLE_ENTITY, pathWithId, {
         schema: patchTasksSchema,
         target: 'json',
       }).or(
-        createProblemSchemaWithExample(HttpErrorCode.UNPROCESSABLE_ENTITY, pathWithId, {
+        createProblemSchemaWithExample(HttpStatusName.UNPROCESSABLE_ENTITY, pathWithId, {
           schema: IdUUIDParamsSchema,
           target: 'param',
         }),

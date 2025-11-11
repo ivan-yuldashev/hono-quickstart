@@ -8,7 +8,7 @@ export const selectUsersSchema = createSelectSchema(users).omit({
 });
 
 const authSchema = z.object({
-  email: z.email('Неверный формат email'),
+  email: z.email(),
   password: z.string().min(8),
 });
 

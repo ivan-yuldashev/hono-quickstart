@@ -3,7 +3,7 @@ import type { ClientErrorStatusCode, ServerErrorStatusCode } from 'hono/utils/ht
 import type { JSONParsed, JSONValue } from 'hono/utils/types';
 
 import type { ErrorStatusCode, Problem, ProblemOptions, ValidationProblem } from '@/shared/problem/types';
-import type { HttpErrorStatusName } from '@/shared/types';
+import type { HttpErrorStatusName } from '@/shared/types/statuses';
 
 import { HttpStatusCodes } from '@/shared/constants/http-status-codes';
 import { createProblem } from '@/shared/problem/create-problem';
@@ -11,28 +11,28 @@ import { createProblem } from '@/shared/problem/create-problem';
 type JSONRespondReturn<T extends JSONValue, U extends ClientErrorStatusCode | ServerErrorStatusCode> = Response &
   TypedResponse<JSONParsed<T>, U, 'json'>;
 
-export function problemResponse<C extends HttpErrorStatusName>(
+export function problemResponse<N extends HttpErrorStatusName>(
   c: Context,
-  code: C,
+  statusName: N,
   options?: { message?: string },
-): JSONRespondReturn<Problem<C>, ErrorStatusCode<C>>;
+): JSONRespondReturn<Problem<N>, ErrorStatusCode<N>>;
 
-export function problemResponse<C extends HttpErrorStatusName, T extends keyof ValidationTargets>(
+export function problemResponse<N extends HttpErrorStatusName, T extends keyof ValidationTargets>(
   c: Context,
-  code: C,
+  statusName: N,
   options: ProblemOptions<T>,
-): JSONRespondReturn<ValidationProblem<C>, ErrorStatusCode<C>>;
+): JSONRespondReturn<ValidationProblem<N>, ErrorStatusCode<N>>;
 
-export function problemResponse<C extends HttpErrorStatusName, T extends keyof ValidationTargets = never>(
+export function problemResponse<N extends HttpErrorStatusName, T extends keyof ValidationTargets = never>(
   c: Context,
-  code: C,
+  statusName: N,
   options?: { message?: string } | ProblemOptions<T>,
-): JSONRespondReturn<Problem<C>, ErrorStatusCode<C>> | JSONRespondReturn<ValidationProblem<C>, ErrorStatusCode<C>> {
-  const status = HttpStatusCodes[code];
+): JSONRespondReturn<Problem<N>, ErrorStatusCode<N>> | JSONRespondReturn<ValidationProblem<N>, ErrorStatusCode<N>> {
+  const status = HttpStatusCodes[statusName];
   const requestId = c.var.requestId;
   const instance = c.req.path;
 
-  const problem = createProblem({ code, instance, requestId, ...options });
+  const problem = createProblem({ instance, requestId, statusName, ...options });
 
   return c.json(problem, status, {
     'Content-Type': 'application/problem+json',

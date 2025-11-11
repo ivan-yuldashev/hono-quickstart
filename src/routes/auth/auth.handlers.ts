@@ -1,13 +1,14 @@
 import bcrypt from 'bcrypt';
+import { eq } from 'drizzle-orm';
 import { deleteCookie } from 'hono/cookie';
 import { sign } from 'hono/jwt';
 
 import type { LoginRoute, LogoutRoute, RegisterRoute } from '@/routes/auth/types';
-import type { AppRouteHandler } from '@/shared/types';
+import type { AppRouteHandler } from '@/shared/types/app';
 
 import { env } from '@/infrastructure/config/env';
-import { orm } from '@/infrastructure/db/orm';
 import { users } from '@/infrastructure/db/schema';
+import { userRepository } from '@/repositories/user.repository';
 import { getJwtPayload, setCookie } from '@/routes/auth/helpers';
 import { HttpStatusCodes } from '@/shared/constants/http-status-codes';
 import { problem } from '@/shared/problem/problem';
@@ -15,11 +16,7 @@ import { problem } from '@/shared/problem/problem';
 export const login: AppRouteHandler<LoginRoute> = async (c) => {
   const { email, password } = c.req.valid('json');
 
-  const user = await orm.query.users.findFirst({
-    where(fields, operators) {
-      return operators.eq(fields.email, email);
-    },
-  });
+  const [user] = await userRepository.findBy({ limit: 1, offset: 0, where: eq(users.email, email) });
 
   if (!user) {
     return problem.unauthorized(c, 'Login or password is incorrect');
@@ -44,28 +41,20 @@ export const logout: AppRouteHandler<LogoutRoute> = async (c) => {
 
 export const register: AppRouteHandler<RegisterRoute> = async (c) => {
   const { email, password } = c.req.valid('json');
+  const { app } = c.req;
 
   const hash = await bcrypt.hash(password, 12);
 
-  const [inserted] = await orm
-    .insert(users)
-    .values({
-      email,
-      hash,
-    })
-    .returning({
-      createdAt: users.createdAt,
-      email: users.email,
-      id: users.id,
-      updatedAt: users.updatedAt,
-    });
+  const user = await app.users.create({ email, hash });
 
-  if (!inserted) {
+  if (!user) {
     return problem.conflict(c);
   }
 
-  const token = await sign(getJwtPayload(inserted), env.SECRET);
+  const token = await sign(getJwtPayload(user), env.SECRET);
   setCookie(c, token);
 
-  return c.json(inserted, HttpStatusCodes.CREATED);
+  const { hash: _hash, ...userWithoutHash } = user;
+
+  return c.json(userWithoutHash, HttpStatusCodes.CREATED);
 };

@@ -1,6 +1,6 @@
 import type { MiddlewareHandler, Schema } from 'hono';
 
-import type { AppOpenAPI } from '@/shared/types';
+import type { AppOpenAPI } from '@/shared/types/app';
 
 import { createBaseApp } from '@/infrastructure/http/create-base-app';
 

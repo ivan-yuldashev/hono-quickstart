@@ -3,7 +3,7 @@ import type { ValidationTargets } from 'hono';
 import { z } from '@hono/zod-openapi';
 
 import type { TargetValue } from '@/shared/problem/types';
-import type { HttpErrorStatusName } from '@/shared/types';
+import type { HttpErrorStatusName } from '@/shared/types/statuses';
 
 import { createProblem } from '@/shared/problem/create-problem';
 import { createProblemSchema } from '@/shared/problem/helpers/create-problem-schema';
@@ -15,41 +15,41 @@ interface Options<T extends TargetValue> {
   target: T;
 }
 
-type ValidationProblemSchema<C extends HttpErrorStatusName> = ReturnType<typeof createValidationProblemSchema<C>>;
-type ProblemSchema<C extends HttpErrorStatusName> = ReturnType<typeof createProblemSchema<C>>;
+type ValidationProblemSchema<N extends HttpErrorStatusName> = ReturnType<typeof createValidationProblemSchema<N>>;
+type ProblemSchema<N extends HttpErrorStatusName> = ReturnType<typeof createProblemSchema<N>>;
 
 function hasValidation<T extends TargetValue>(options: Options<T>): options is Options<T> {
   return 'schema' in options && 'target' in options;
 }
 
-export function createProblemSchemaWithExample<C extends HttpErrorStatusName>(
-  code: C,
+export function createProblemSchemaWithExample<N extends HttpErrorStatusName>(
+  statusName: N,
   instance: string,
   options?: { message?: string },
-): ProblemSchema<C>;
+): ProblemSchema<N>;
 
-export function createProblemSchemaWithExample<C extends HttpErrorStatusName, T extends keyof ValidationTargets>(
-  code: C,
+export function createProblemSchemaWithExample<N extends HttpErrorStatusName, T extends keyof ValidationTargets>(
+  statusName: N,
   instance: string,
   options: Options<T>,
-): ValidationProblemSchema<C>;
+): ValidationProblemSchema<N>;
 
 export function createProblemSchemaWithExample<
-  C extends HttpErrorStatusName,
+  N extends HttpErrorStatusName,
   T extends keyof ValidationTargets = never,
 >(
-  code: C,
+  statusName: N,
   instance: string,
   options: { message?: string } | Options<T> = {},
-): ProblemSchema<C> | ValidationProblemSchema<C> {
+): ProblemSchema<N> | ValidationProblemSchema<N> {
   const withValidation = 'target' in options;
   const withCustomMessage = 'message' in options;
   const message = withCustomMessage ? options.message : undefined;
 
   const example = createProblem({
-    code,
     instance,
     requestId: crypto.randomUUID(),
+    statusName,
     ...(message !== undefined && { message }),
     ...(withValidation && {
       target: options.target,
@@ -58,8 +58,8 @@ export function createProblemSchemaWithExample<
   });
 
   if (withValidation && hasValidation(options)) {
-    return createValidationProblemSchema(code, options.target).openapi({ example });
+    return createValidationProblemSchema(statusName, options.target).openapi({ example });
   }
 
-  return createProblemSchema(code, message).openapi({ example });
+  return createProblemSchema(statusName, message).openapi({ example });
 }

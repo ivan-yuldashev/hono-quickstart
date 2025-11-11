@@ -32,6 +32,7 @@ export default antfu(
         { blankLine: 'any', next: 'export', prev: 'export' },
       ],
       'perfectionist/sort-array-includes': 'error',
+      'perfectionist/sort-classes': 'error',
       'perfectionist/sort-enums': ['error', { partitionByNewLine: true }],
       'perfectionist/sort-exports': 'error',
       'perfectionist/sort-imports': [
@@ -60,6 +61,7 @@ export default antfu(
         {
           argsIgnorePattern: '^_',
           caughtErrorsIgnorePattern: '^_',
+          varsIgnorePattern: '^_',
         },
       ],
     },

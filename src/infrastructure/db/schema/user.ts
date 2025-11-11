@@ -1,10 +1,9 @@
-import { pgTable, text, uuid, varchar } from 'drizzle-orm/pg-core';
+import { pgTable, text, varchar } from 'drizzle-orm/pg-core';
 
-import { timestamps } from '@/infrastructure/db/helpers/timestamps';
+import { baseSchema } from '@/infrastructure/db/schema/base';
 
 export const users = pgTable('users', {
   email: varchar('email', { length: 255 }).notNull().unique(),
   hash: text('hash').notNull(),
-  id: uuid('id').primaryKey().defaultRandom(),
-  ...timestamps,
+  ...baseSchema,
 });

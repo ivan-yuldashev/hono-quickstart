@@ -10,7 +10,7 @@ import type {
   pointerErrorSchema,
   sourceErrorSchema,
 } from '@/shared/problem/schemas/base-problem-schema';
-import type { HttpErrorStatusName } from '@/shared/types';
+import type { HttpErrorStatusName } from '@/shared/types/statuses';
 
 export interface ProblemOptions<T extends keyof ValidationTargets> {
   target: T;

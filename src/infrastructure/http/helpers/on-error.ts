@@ -4,9 +4,10 @@ import { DrizzleQueryError } from 'drizzle-orm';
 import { HTTPException } from 'hono/http-exception';
 import { DatabaseError } from 'pg';
 
-import type { AppBindings } from '@/shared/types';
+import type { AppBindings } from '@/shared/types/app';
 
-import { ClientErrorStatusCodes, HttpStatusCodes, ServerErrorStatusCodes } from '@/shared/constants/http-status-codes';
+import { ClientErrorStatusCodes, ServerErrorStatusCodes } from '@/shared/constants/http-status-codes';
+import { HttpStatusName } from '@/shared/constants/http-status-name';
 import { LogLevel } from '@/shared/constants/log-level';
 import { problemResponse } from '@/shared/problem/helpers/problem-response';
 import { problem } from '@/shared/problem/problem';
@@ -57,7 +58,8 @@ export function onError(err: Error, c: Context<AppBindings>) {
 
     const logLevel = status < 500 && status !== -1 ? LogLevel.WARN : LogLevel.ERROR;
     logger[logLevel]({ ...context, err }, `Handled HTTPException: ${err.message}`);
-    const errorCodeName = HTTP_ERROR_CODE_TO_NAME_MAP[status as keyof typeof HTTP_ERROR_CODE_TO_NAME_MAP];
+    const errorCodeName: HttpStatusName | undefined =
+      HTTP_ERROR_CODE_TO_NAME_MAP[status as keyof typeof HTTP_ERROR_CODE_TO_NAME_MAP];
 
     if (errorCodeName === undefined) {
       logger.error(
@@ -66,7 +68,7 @@ export function onError(err: Error, c: Context<AppBindings>) {
       );
     }
 
-    return problemResponse(c, errorCodeName ?? HttpStatusCodes.INTERNAL_SERVER_ERROR);
+    return problemResponse(c, errorCodeName ?? HttpStatusName.INTERNAL_SERVER_ERROR);
   }
 
   logger.error({ ...context, err }, `Unhandled error caught: ${err.message}`);

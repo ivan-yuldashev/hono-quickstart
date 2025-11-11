@@ -1,51 +1,32 @@
-import { count, eq } from 'drizzle-orm';
-
 import type { CreateRoute, GetOneRoute, ListRoute, PatchRoute, RemoveRoute } from '@/routes/tasks/types';
-import type { AppRouteHandler } from '@/shared/types';
+import type { AppRouteHandler } from '@/shared/types/app';
 
-import { orm } from '@/infrastructure/db/orm';
-import { tasks } from '@/infrastructure/db/schema/task';
 import { HttpStatusCodes } from '@/shared/constants/http-status-codes';
 import { problem } from '@/shared/problem/problem';
 
 export const list: AppRouteHandler<ListRoute> = async (c) => {
   const { limit, offset } = c.req.valid('query');
-  const tasksQuery = orm.query.tasks.findMany({
-    limit,
-    offset,
-    orderBy: (t, { desc }) => [desc(t.createdAt)],
-  });
+  const { app } = c.req;
 
-  const totalQuery = orm.select({ value: count() }).from(tasks);
+  const data = await app.tasks.find({ limit, offset });
 
-  const [docs, totalResult] = await Promise.all([tasksQuery, totalQuery]);
-
-  const total = totalResult.at(0)?.value ?? 0;
-
-  return c.json(
-    {
-      docs,
-      total,
-    },
-    HttpStatusCodes.OK,
-  );
+  return c.json(data, HttpStatusCodes.OK);
 };
 
 export const create: AppRouteHandler<CreateRoute> = async (c) => {
   const task = c.req.valid('json');
-  const [inserted] = await orm.insert(tasks).values(task).returning();
+  const { app } = c.req;
+
+  const inserted = await app.tasks.create({ ...task });
 
   return c.json(inserted, HttpStatusCodes.CREATED);
 };
 
 export const getOne: AppRouteHandler<GetOneRoute> = async (c) => {
   const { id } = c.req.valid('param');
+  const { app } = c.req;
 
-  const task = await orm.query.tasks.findFirst({
-    where(fields, operators) {
-      return operators.eq(fields.id, id);
-    },
-  });
+  const task = await app.tasks.findById(id);
 
   if (!task) {
     return problem.notFound(c);
@@ -56,23 +37,10 @@ export const getOne: AppRouteHandler<GetOneRoute> = async (c) => {
 
 export const patch: AppRouteHandler<PatchRoute> = async (c) => {
   const { id } = c.req.valid('param');
-  const updates = c.req.valid('json');
+  const data = c.req.valid('json');
+  const { app } = c.req;
 
-  if (Object.keys(updates).length === 0) {
-    const task = await orm.query.tasks.findFirst({
-      where(fields, operators) {
-        return operators.eq(fields.id, id);
-      },
-    });
-
-    if (!task) {
-      return problem.notFound(c);
-    }
-
-    return c.json(task, HttpStatusCodes.OK);
-  }
-
-  const [task] = await orm.update(tasks).set(updates).where(eq(tasks.id, id)).returning();
+  const task = await app.tasks.updateById(id, data);
 
   if (!task) {
     return problem.notFound(c);
@@ -83,9 +51,11 @@ export const patch: AppRouteHandler<PatchRoute> = async (c) => {
 
 export const remove: AppRouteHandler<RemoveRoute> = async (c) => {
   const { id } = c.req.valid('param');
-  const result = await orm.delete(tasks).where(eq(tasks.id, id));
+  const { app } = c.req;
 
-  if (result.rowCount === 0) {
+  const task = await app.tasks.deleteById(id);
+
+  if (!task) {
     return problem.notFound(c);
   }
 

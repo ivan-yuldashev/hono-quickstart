@@ -1,6 +1,6 @@
 # Hono Quickstart
 
-A starter template for building fully documented type-safe JSON APIs with Hono and Open API. This project is based on the original work of [w3cj/hono-open-api-starter](https://github.com/w3cj/hono-open-api-starter).
+An opinionated, production-focused starter for Hono. This template provides an end-to-end type-safe stack, featuring a layered architecture (Services & Repositories), Drizzle ORM, PostgreSQL, Zod, and automated OpenAPI documentation.
 
 - [Hono Quickstart](#hono-open-api-starter)
   - [Included](#included)
@@ -15,6 +15,7 @@ A starter template for building fully documented type-safe JSON APIs with Hono a
   - [Endpoints](#endpoints)
   - [Deployment](#deployment)
   - [Contributing](#contributing)
+    - [Acknowledgements](#acknowledgements)
   - [References](#references)
 
 ## Included
@@ -30,7 +31,7 @@ A starter template for building fully documented type-safe JSON APIs with Hono a
 - Authentication with JWT [hono/jwt](https://hono.dev/docs/middleware/builtin/jwt)
 - Layered architecture
 - Graceful shutdown with [Terminus](https://github.com/godaddy/terminus)
-- [In Progress] Unified error format
+- Unified error format
 
 ## Philosophy
 
@@ -106,10 +107,28 @@ pnpm test
 
 The project uses a layered architecture with the following directories:
 
-- `src/app`: Contains the core application logic, including the Hono app creation and route registration.
-- `src/infrastructure`: Contains the infrastructure code, such as the database schema, migrations, and external service integrations.
-- `src/routes`: Contains the route definitions, handlers, and tests.
+- `src/app`: Contains the core Hono app creation, middleware registration, and route binding.
+- `src/infrastructure`: Contains the database schema (Drizzle), migrations, config, and the **Service Factory**.
+- `src/repositories`: Contains the `BaseRepository` class, which handles direct database-to-Drizzle logic (CRUD).
+- `src/services`: Contains the `BaseService` class, which wraps a repository. This layer holds business logic (e.g., combining `find` and `count` for pagination).
+- `src/routes`: Contains the route definitions, handlers, and request/response schemas.
 - `src/shared`: Contains shared code, such as types, constants, and utility functions.
+
+### Service Layer
+
+A key feature of this architecture is the dynamic service factory (found in `src/infrastructure/services/helpers/services.ts`). It automatically creates a `BaseService` for each Drizzle table and injects them into the Hono context via middleware.
+
+This allows handlers to access any service in a type-safe way: `c.req.app.users.find(...)`.
+
+Here is what the `BaseService` methods add:
+
+- **`find(params)`**: Combines two repository calls (`findBy` and `count`) in parallel (`Promise.all`) to return a single `Page<T>` object (`{ docs, total }`) suitable for paginated API responses.
+
+- **`update(raw, ...)` / `updateById(id, raw, ...)`**: Sanitizes input data for PATCH operations. It uses `omitUndefined(raw)` to clean the DTO before passing the `data` to the repository.
+
+- **`findById(id)`**, **`create(data)`**, **`delete(where)`**, **`deleteById(id)`**, **`count(params)`**: Act as clean abstractions (proxies) to the repository methods. This decouples the route handlers from the data layer, ensuring handlers only depend on the service layer.
+
+---
 
 Typesafe env defined in [env.ts](./src/infrastructure/config/env.ts) - add any other required environment variables here. The application will not start if any required environment variables are missing
 
@@ -129,7 +148,7 @@ The `src/routes` directory contains examples for both public (`auth`) and privat
 - **Handlers:** `tasks.handlers.ts`
 - **Schemas:** `shemas.ts`
 
-All app routes are grouped together and exported into single type as `AppType` in [app.ts](./src/app/create-app.ts) for use in [RPC / hono/client](https://hono.dev/docs/guides/rpc).
+All app routes are grouped together and exported into single type as `AppType` in `app.ts` for use in [RPC / hono/client](https://hono.dev/docs/guides/rpc).
 
 ## Testing
 
@@ -137,9 +156,9 @@ This project uses [Vitest](https://vitest.dev/) for testing. All test files are 
 
 When you run the test command, a global setup script (`tests/global-setup.ts`) is executed. This script automatically:
 
-1. Starts a PostgreSQL database in a Docker container using the `docker-compose.test.yml` file.
-2. Applies the latest database schema using Drizzle.
-3. After the tests complete, a teardown script automatically stops and removes the Docker container.
+1.  Starts a PostgreSQL database in a Docker container using the `docker-compose.test.yml` file.
+2.  Applies the latest database schema using Drizzle.
+3.  After the tests complete, a teardown script automatically stops and removes the Docker container.
 
 You can run the tests with the following command:
 
@@ -187,15 +206,19 @@ A Dockerfile is not included, but you can easily add one based on a lightweight 
 
 ## Contributing
 
-Contributions are welcome! Please feel free to open an issue or submit a pull request.
+Contributions are welcome\! Please feel free to open an issue or submit a pull request.
 
-1. Fork the repository.
-2. Create a new branch (`git checkout -b feature/your-feature`).
-3. Make your changes.
-4. Run tests (`pnpm test`) and lint (`pnpm lint`).
-5. Commit your changes (`git commit -m 'Add some feature'`).
-6. Push to the branch (`git push origin feature/your-feature`).
-7. Open a Pull Request.
+1.  Fork the repository.
+2.  Create a new branch (`git checkout -b feature/your-feature`).
+3.  Make your changes.
+4.  Run tests (`pnpm test`) and lint (`pnpm lint`).
+5.  Commit your changes (`git commit -m 'Add some feature'`).
+6.  Push to the branch (`git push origin feature/your-feature`).
+7.  Open a Pull Request.
+
+## Acknowledgements
+
+This project is based on the original work of [w3cj/hono-open-api-starter](https://github.com/w3cj/hono-open-api-starter).
 
 ## References
 

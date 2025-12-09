@@ -4,6 +4,7 @@ import path from 'node:path';
 import { z } from 'zod';
 
 import { NodeEnv } from '@/infrastructure/config/constants/node-env';
+import { DurationUnit } from '@/shared/constants/duration-unit';
 import { LogLevel } from '@/shared/constants/log-level';
 
 const { parsed } = expand(
@@ -15,10 +16,14 @@ const { parsed } = expand(
 );
 
 const BaseEnvSchema = z.object({
-  COOKIE_NAME: z.string().default('token'),
   LOG_LEVEL: z.enum(LogLevel).default(LogLevel.INFO),
   PORT: z.coerce.number().default(3000),
-  SECRET: z.string(),
+
+  ACCESS_TOKEN_SECRET: z.string().min(12),
+  ACCESS_TOKEN_TTL: z.templateLiteral([z.number(), z.enum(DurationUnit)]).default('15m'),
+  COOKIE_NAME: z.string().default('refresh'),
+  REFRESH_TOKEN_SECRET: z.string().min(12),
+  REFRESH_TOKEN_TTL: z.templateLiteral([z.number(), z.enum(DurationUnit)]).default('7d'),
 });
 
 const EnvSchema = z.union([
@@ -44,8 +49,6 @@ const EnvSchema = z.union([
   }),
 ]);
 
-export type Env = z.infer<typeof EnvSchema>;
-
 const { data, error } = EnvSchema.safeParse(parsed);
 
 if (error) {
@@ -66,3 +69,5 @@ const databaseUri =
     : `postgresql://${env.DATABASE_USER}:${env.DATABASE_PASSWORD}@localhost:${env.DATABASE_PORT}/${env.DATABASE_NAME}`;
 
 export { databaseUri, env, isDevelopment, isProduction, isTest };
+
+export type Env = z.infer<typeof EnvSchema>;

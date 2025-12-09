@@ -11,5 +11,6 @@ export enum Path {
   // Auth
   LOGIN = '/login',
   LOGOUT = '/logout',
+  REFRESH_TOKEN = '/refresh-token',
   REGISTER = '/register',
 }

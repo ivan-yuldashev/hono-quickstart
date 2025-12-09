@@ -1,6 +1,6 @@
 import { OpenAPIHono } from '@hono/zod-openapi';
 
-import type { AppBindings } from '@/shared/types/app';
+import type { AppBindings } from '@/app/types';
 
 import { defaultHook } from '@/infrastructure/http/helpers/default-hook';
 

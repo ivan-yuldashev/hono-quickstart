@@ -1,8 +1,8 @@
 import type { Hook } from '@hono/zod-openapi';
 import type { TypedResponse } from 'hono';
 
+import type { AppBindings } from '@/app/types';
 import type { ValidationProblem } from '@/shared/problem/types';
-import type { AppBindings } from '@/shared/types/app';
 import type { HttpErrorStatusName } from '@/shared/types/statuses';
 
 import { problem } from '@/shared/problem/problem';

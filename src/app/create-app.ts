@@ -1,10 +1,10 @@
 import { serveEmojiFavicon } from 'stoker/middlewares';
 
+import { configureOpenAPI } from '@/app/helpers/configure-open-api';
 import { privateRoutes, publicRoutes } from '@/app/routes';
-import { jwt } from '@/infrastructure/auth/jwt';
 import { createBaseApp } from '@/infrastructure/http/create-base-app';
 import { createRouter } from '@/infrastructure/http/create-router';
-import { configureOpenAPI } from '@/routes/openapi/configure-open-api';
+import { authMiddleware } from '@/modules/auth/auth.middleware';
 
 export function createApp() {
   const app = createBaseApp();
@@ -18,7 +18,7 @@ export function createApp() {
   });
 
   const authedApp = createRouter();
-  authedApp.use(jwt);
+  authedApp.use(authMiddleware);
 
   privateRoutes.forEach((route) => {
     authedApp.route('/', route);

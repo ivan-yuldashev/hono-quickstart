@@ -2,16 +2,16 @@ import { testClient } from 'hono/testing';
 import { createTestApp } from 'tests/helpers/create-test-app';
 import { beforeAll, describe, expect, expectTypeOf, it } from 'vitest';
 
-import { jwt } from '@/infrastructure/auth/jwt';
-import authRouter from '@/routes/auth/auth.index';
-import router from '@/routes/tasks/tasks.index';
+import { authRouter } from '@/modules/auth/auth.index';
+import { authMiddleware } from '@/modules/auth/auth.middleware';
+import { tasksRouter } from '@/modules/tasks/tasks.index';
 import { HttpStatusCodes } from '@/shared/constants/http-status-codes';
 
 const authClient = testClient(createTestApp(authRouter));
-const client = testClient(createTestApp(router, [jwt]));
+const client = testClient(createTestApp(tasksRouter, [authMiddleware]));
 
 describe('tasks routes', () => {
-  let tokenCookie = '';
+  let accessToken = '';
   let createdTaskId = '';
   const taskName = 'Learn vitest';
 
@@ -20,20 +20,29 @@ describe('tasks routes', () => {
     const password = 'password123';
 
     await authClient.register.$post({ json: { email, password } });
+
     const loginResponse = await authClient.login.$post({ json: { email, password } });
 
-    tokenCookie = loginResponse.headers.getSetCookie().at(0) ?? '';
+    expect(loginResponse.status).toBe(HttpStatusCodes.OK);
+
+    if (loginResponse.status === HttpStatusCodes.OK) {
+      const loginJson = await loginResponse.json();
+      accessToken = loginJson.accessToken;
+    }
   });
 
   describe('post /tasks:', () => {
     it('should fail validation if name is missing', async () => {
       const response = await client.tasks.$post(
         {
-          // eslint-disable-next-line ts/ban-ts-comment
-          // @ts-expect-error
+          // @ts-expect-error test
           json: { done: false },
         },
-        { headers: { Cookie: tokenCookie } },
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        },
       );
 
       expect(response.status).toBe(HttpStatusCodes.UNPROCESSABLE_ENTITY);
@@ -54,7 +63,11 @@ describe('tasks routes', () => {
         {
           json: { done: false, name: taskName },
         },
-        { headers: { Cookie: tokenCookie } },
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        },
       );
 
       expect(response.status).toBe(HttpStatusCodes.CREATED);
@@ -78,7 +91,11 @@ describe('tasks routes', () => {
         {
           query: { limit: 10, offset: 0 },
         },
-        { headers: { Cookie: tokenCookie } },
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        },
       );
 
       expect(response.status).toBe(HttpStatusCodes.OK);
@@ -102,7 +119,11 @@ describe('tasks routes', () => {
         {
           param: { id: 'not-a-uuid' },
         },
-        { headers: { Cookie: tokenCookie } },
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        },
       );
 
       expect(response.status).toBe(HttpStatusCodes.UNPROCESSABLE_ENTITY);
@@ -124,7 +145,11 @@ describe('tasks routes', () => {
         {
           param: { id: randomUuid },
         },
-        { headers: { Cookie: tokenCookie } },
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        },
       );
 
       expect(response.status).toBe(HttpStatusCodes.NOT_FOUND);
@@ -135,7 +160,11 @@ describe('tasks routes', () => {
         {
           param: { id: createdTaskId },
         },
-        { headers: { Cookie: tokenCookie } },
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        },
       );
 
       expect(response.status).toBe(HttpStatusCodes.OK);
@@ -155,7 +184,11 @@ describe('tasks routes', () => {
           json: { done: true },
           param: { id: createdTaskId },
         },
-        { headers: { Cookie: tokenCookie } },
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        },
       );
 
       expect(response.status).toBe(HttpStatusCodes.OK);
@@ -174,7 +207,11 @@ describe('tasks routes', () => {
           json: { done: true },
           param: { id: crypto.randomUUID() },
         },
-        { headers: { Cookie: tokenCookie } },
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        },
       );
 
       expect(response.status).toBe(HttpStatusCodes.NOT_FOUND);
@@ -187,7 +224,11 @@ describe('tasks routes', () => {
         {
           param: { id: createdTaskId },
         },
-        { headers: { Cookie: tokenCookie } },
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        },
       );
 
       expect(response.status).toBe(HttpStatusCodes.NO_CONTENT);
@@ -198,7 +239,11 @@ describe('tasks routes', () => {
         {
           param: { id: createdTaskId },
         },
-        { headers: { Cookie: tokenCookie } },
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        },
       );
 
       expect(response.status).toBe(HttpStatusCodes.NOT_FOUND);

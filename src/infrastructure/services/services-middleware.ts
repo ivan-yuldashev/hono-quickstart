@@ -1,19 +1,18 @@
 import { createMiddleware } from 'hono/factory';
 
-import type { ServicesMap } from '@/infrastructure/services/helpers/services';
+import type { AppBindings } from '@/app/types';
 
-import { tasks, users } from '@/infrastructure/db/schema';
-import { createServices } from '@/infrastructure/services/helpers/services';
+import { refreshTokens, tasks, users } from '@/infrastructure/db/schema';
+import { createServices } from '@/infrastructure/services/helpers/create-services';
+import { AuthService } from '@/modules/auth/auth.service';
+import { BaseRepository } from '@/shared/core/base.repository';
 
-declare module 'hono' {
-  interface HonoRequest {
-    app: ServicesMap<[typeof users, typeof tasks]>;
-  }
-}
+const services = createServices([users, tasks] as const);
+const auth = new AuthService(new BaseRepository(users), new BaseRepository(refreshTokens));
 
-export const services = createServices([users, tasks] as const);
+export const servicesMiddleware = createMiddleware<AppBindings>(async (c, next) => {
+  c.set('services', services);
+  c.set('auth', auth);
 
-export const servicesMiddleware = createMiddleware(async (c, next) => {
-  c.req.app = services;
   await next();
 });

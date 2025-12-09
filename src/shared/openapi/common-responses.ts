@@ -7,7 +7,7 @@ import { createProblemSchemaWithExample } from '@/shared/problem/create-problem-
 export const unauthorizedResponse = {
   [HttpStatusCodes.UNAUTHORIZED]: jsonContent(
     createProblemSchemaWithExample(HttpStatusName.UNAUTHORIZED, '/'),
-    'Authotization error',
+    'Authorization error',
   ),
 };
 

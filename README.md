@@ -120,6 +120,7 @@ The project uses a **Modular Architecture**. Instead of scattering code across g
 
 ### **Directory Structure**
 
+```sh
 src/
 |-- app/ \# Core Hono setup, middleware & AppType
 |-- infrastructure/ \# Technical concerns (DB, Logger, Env)
@@ -131,6 +132,7 @@ src/
 | |-- users/
 | |-- tasks/
 |-- shared/ \# Shared Utilities, Types, Constants
+```
 
 - src/app: Contains the core Hono app creation, global middleware registration, and module aggregation.
 - src/infrastructure: Contains shared technical concerns: database connection (Drizzle), config, logger, **Service Factory**, and base classes.

@@ -52,43 +52,67 @@ This template is built with a few core principles in mind:
 
 Clone this template without git history
 
-npx degit ivan-yuldashev/hono-quickstart my-api  
+```sh
+npx degit ivan-yuldashev/hono-quickstart my-api
+```
+
+```sh
 cd my-api
+```
 
 Create .env file
 
+```sh
 cp .env.example .env
+```
 
 **Note:** See .env.example for a list of all required environment variables. Typesafe env is defined in [env.ts](https://www.google.com/search?q=./src/infrastructure/config/env.ts). The application will not start if any required environment variables are missing.
 
 Install dependencies
 
-corepack enable  
+```sh
+corepack enable
+```
+
+```sh
 pnpm install
+```
 
 Run the database
 
+```sh
 docker-compose \-f docker-compose.dev.yml up \-d
+```
 
 Generate database migrations
 
+```sh
 pnpm db:generate
+```
 
 Run database migrations
 
+```sh
 pnpm db:migrate
+```
 
 Run
 
+```sh
 pnpm dev
+```
 
 Lint
 
+```sh
 pnpm lint
+```
 
 Test
 
+```sh
 pnpm test
+```
 
 ## **Code Tour**
 
@@ -96,17 +120,17 @@ The project uses a **Modular Architecture**. Instead of scattering code across g
 
 ### **Directory Structure**
 
-src/  
-├── app/ \# Core Hono setup, middleware & AppType  
-├── infrastructure/ \# Technical concerns (DB, Logger, Env)  
-├── modules/ \# Business Domains (Vertical Slices)  
-│ ├── auth/ \# Example module  
-│ │ ├── auth.routes.ts  
-│ │ ├── auth.service.ts  
-│ │ └── ...  
-│ ├── users/  
-│ └── tasks/  
-└── shared/ \# Shared Utilities, Types, Constants
+src/
+|-- app/ \# Core Hono setup, middleware & AppType
+|-- infrastructure/ \# Technical concerns (DB, Logger, Env)
+|-- modules/ \# Business Domains (Vertical Slices)
+| |-- auth/ \# Example module
+| | |-- auth.routes.ts
+| | |-- auth.service.ts
+| | |-- ...
+| |-- users/
+| |-- tasks/
+|-- shared/ \# Shared Utilities, Types, Constants
 
 - src/app: Contains the core Hono app creation, global middleware registration, and module aggregation.
 - src/infrastructure: Contains shared technical concerns: database connection (Drizzle), config, logger, **Service Factory**, and base classes.
@@ -121,23 +145,25 @@ The application employs a **hybrid service architecture**, combining automated C
 
 #### **1\. Dynamic Service Factory (BaseService)**
 
-Found in src/infrastructure/services/helpers/create-services.ts.  
-This factory automatically creates a BaseService for every Drizzle table defined in the schema and injects them into the Hono context via middleware.  
+Found in src/infrastructure/services/helpers/create-services.ts.
+This factory automatically creates a BaseService for every Drizzle table defined in the schema and injects them into the Hono context via middleware.
 **Usage Example:**
 
 You can access any auto-generated service directly from the context using c.get('services').
 
-export const list: AppRouteHandler\<ListRoute\> \= async (c) \=\> {  
- const { limit, offset } \= c.req.valid('query');
+```sh
+export const list: AppRouteHandler\<ListRoute\> \= async (c) \=\> {
+const { limit, offset } \= c.req.valid('query');
 
-// Access the dynamic service for 'tasks'  
- const { tasks } \= c.get('services');
+// Access the dynamic service for 'tasks'
+const { tasks } \= c.get('services');
 
-// Uses BaseService.find() which handles pagination automatically  
- const data \= await tasks.find({ limit, offset });
+// Uses BaseService.find() which handles pagination automatically
+const data \= await tasks.find({ limit, offset });
 
-return c.json(data, HttpStatusCodes.OK);  
+return c.json(data, HttpStatusCodes.OK);
 };
+```
 
 **BaseService Methods:**
 
@@ -215,37 +241,6 @@ The application implements a robust authentication strategy using two tokens:
 
 **Rotation:** The system supports Refresh Token Rotation to detect token reuse and enhance security.
 
-sequenceDiagram  
- participant C as Client  
- participant S as Server  
- participant DB as Database
-
-    Note over C,S: 1\. Login
-    C-\>\>S: POST /login {email, password}
-    S-\>\>DB: Validate Credentials
-    DB--\>\>S: User Valid
-    S-\>\>DB: Store Refresh Token (hash)
-    S--\>\>C: 200 OK (Body: AccessToken, Cookie: RefreshToken)
-
-    Note over C,S: 2\. Authorized Request
-    C-\>\>S: GET /tasks (Header: Bearer AccessToken)
-    S--\>\>C: 200 OK (Data)
-
-    Note over C,S: 3\. Token Expiry
-    C-\>\>S: GET /tasks (Expired AccessToken)
-    S--\>\>C: 401 Unauthorized
-
-    Note over C,S: 4\. Refresh Cycle
-    C-\>\>S: POST /refresh-token (Cookie: RefreshToken)
-    S-\>\>DB: Verify & Check Reuse
-    alt Token Valid
-        S-\>\>DB: Revoke Old, Store New Token
-        S--\>\>C: 200 OK (Body: New AccessToken, Cookie: New RefreshToken)
-    else Token Invalid / Reused
-        S-\>\>DB: Revoke All User Tokens
-        S--\>\>C: 401 Unauthorized
-    end
-
 ### **Graceful Shutdown**
 
 The application uses [Terminus](https://github.com/godaddy/terminus) to gracefully shut down the server. This ensures that all active connections are closed before the process exits, preventing data loss and ensuring a clean shutdown.
@@ -311,3 +306,7 @@ This project is based on the original work of [w3cj/hono-open-api-starter](https
 - [Scalar Documentation](https://github.com/scalar/scalar/tree/main/?tab=readme-ov-file#documentation)
   - [Themes / Layout](https://github.com/scalar/scalar/blob/main/documentation/themes.md)
   - [Configuration](https://github.com/scalar/scalar/blob/main/documentation/configuration.md)
+
+```
+
+```

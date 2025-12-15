@@ -10,5 +10,5 @@ export const tasks = pgTable(
     name: varchar('name', { length: 200 }).notNull(),
     ...baseSchema,
   },
-  (t) => [index('created_at_idx').on(desc(t.createdAt))],
+  t => [index('created_at_idx').on(desc(t.createdAt))],
 );

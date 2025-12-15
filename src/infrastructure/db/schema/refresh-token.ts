@@ -18,7 +18,7 @@ export const refreshTokens = pgTable(
       .notNull(),
     ...baseSchema,
   },
-  (table) => ({
+  table => ({
     userIdIdx: index('refresh_tokens_user_id_idx').on(table.userId),
   }),
 );

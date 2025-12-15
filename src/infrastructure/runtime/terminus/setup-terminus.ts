@@ -6,12 +6,12 @@ import { pino } from '@/infrastructure/logging/pino';
 import { onHealthCheck } from '@/infrastructure/runtime/terminus/helpers/on-health-check';
 import { onShutdown } from '@/infrastructure/runtime/terminus/helpers/on-shutdown';
 import { onSignal } from '@/infrastructure/runtime/terminus/helpers/on-signal';
-import { Path } from '@/shared/constants/path';
+import { RootPath } from '@/shared/constants/paths';
 
 export function setupTerminus(server: ServerType) {
   createTerminus(server, {
     healthChecks: {
-      [Path.HEALTH]: onHealthCheck,
+      [RootPath.HEALTH]: onHealthCheck,
       verbatim: true,
     },
     onShutdown,
@@ -23,7 +23,8 @@ export function setupTerminus(server: ServerType) {
   process.on('unhandledRejection', (reason) => {
     if (reason instanceof Error) {
       pino.fatal({ err: reason }, 'Unhandled Rejection');
-    } else {
+    }
+    else {
       pino.fatal({ errorDetails: reason }, 'Unhandled Rejection');
     }
 

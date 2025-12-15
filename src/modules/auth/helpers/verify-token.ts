@@ -13,7 +13,8 @@ export async function verifyToken<S extends z.ZodSchema>(token: string, secret: 
     }
 
     return result.data;
-  } catch (_error) {
+  }
+  catch (_error) {
     return null;
   }
 }

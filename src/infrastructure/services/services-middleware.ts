@@ -1,6 +1,6 @@
-import { createMiddleware } from 'hono/factory';
-
 import type { AppBindings } from '@/app/types';
+
+import { createMiddleware } from 'hono/factory';
 
 import { refreshTokens, tasks, users } from '@/infrastructure/db/schema';
 import { createServices } from '@/infrastructure/services/helpers/create-services';

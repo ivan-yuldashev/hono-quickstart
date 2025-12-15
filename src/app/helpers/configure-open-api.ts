@@ -1,12 +1,13 @@
 import type { OpenAPIHono } from '@hono/zod-openapi';
 
-import { Scalar } from '@scalar/hono-api-reference';
-
 import type { AppBindings } from '@/app/types';
 
-import { env } from '@/infrastructure/config/env';
-import { Path } from '@/shared/constants/path';
+import { Scalar } from '@scalar/hono-api-reference';
 
+import { env } from '@/infrastructure/config/env';
+import { RootPath } from '@/shared/constants/paths';
+
+// eslint-disable-next-line no-restricted-imports
 import packageJSON from '../../../package.json' with { type: 'json' };
 
 export function configureOpenAPI(app: OpenAPIHono<AppBindings>) {
@@ -22,7 +23,7 @@ export function configureOpenAPI(app: OpenAPIHono<AppBindings>) {
     type: 'apiKey',
   });
 
-  app.doc(Path.OPEN_API, {
+  app.doc(RootPath.OPEN_API, {
     info: {
       title: 'Tasks API',
       version: packageJSON.version,
@@ -31,7 +32,7 @@ export function configureOpenAPI(app: OpenAPIHono<AppBindings>) {
   });
 
   app.get(
-    Path.DOC,
+    RootPath.DOC,
     Scalar({
       authentication: {
         preferredSecurityScheme: 'bearerAuth',
@@ -42,7 +43,7 @@ export function configureOpenAPI(app: OpenAPIHono<AppBindings>) {
       },
       layout: 'classic',
       theme: 'default',
-      url: Path.OPEN_API,
+      url: RootPath.OPEN_API,
     }),
   );
 }

@@ -10,7 +10,7 @@ import {
   registerResponseSchema,
 } from '@/modules/auth/auth.schemas';
 import { HttpStatusName } from '@/shared/constants/http-status-name';
-import { Path } from '@/shared/constants/path';
+import { V1Path } from '@/shared/constants/paths';
 import { internalServerErrorResponse, unauthorizedResponse } from '@/shared/openapi/common-responses';
 import { createProblemSchemaWithExample } from '@/shared/problem/create-problem-schema-with-example';
 
@@ -26,7 +26,7 @@ const baseAuthRoute = {
 export const login = createRoute({
   ...baseAuthRoute,
   method: 'post',
-  path: Path.LOGIN,
+  path: V1Path.LOGIN,
   request: {
     body: jsonContentRequired(loginRequestSchema, 'Login'),
   },
@@ -38,7 +38,7 @@ export const login = createRoute({
       'Login or password is incorrect',
     ),
     [HttpStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
-      createProblemSchemaWithExample(HttpStatusName.UNPROCESSABLE_ENTITY, Path.LOGIN, {
+      createProblemSchemaWithExample(HttpStatusName.UNPROCESSABLE_ENTITY, V1Path.LOGIN, {
         schema: loginRequestSchema,
         target: 'json',
       }),
@@ -50,7 +50,7 @@ export const login = createRoute({
 export const logout = createRoute({
   ...baseAuthRoute,
   method: 'post',
-  path: Path.LOGOUT,
+  path: V1Path.LOGOUT,
   responses: {
     ...baseAuthRoute.responses,
     [HttpStatusCodes.NO_CONTENT]: {
@@ -62,7 +62,7 @@ export const logout = createRoute({
 export const refresh = createRoute({
   ...baseAuthRoute,
   method: 'post',
-  path: Path.REFRESH_TOKEN,
+  path: V1Path.REFRESH_TOKEN,
   responses: {
     ...unauthorizedResponse,
     ...baseAuthRoute.responses,
@@ -74,19 +74,19 @@ export const refresh = createRoute({
 export const register = createRoute({
   ...baseAuthRoute,
   method: 'post',
-  path: Path.REGISTER,
+  path: V1Path.REGISTER,
   request: {
     body: jsonContentRequired(registerRequestSchema, 'Register'),
   },
   responses: {
     ...baseAuthRoute.responses,
     [HttpStatusCodes.CONFLICT]: jsonContent(
-      createProblemSchemaWithExample(HttpStatusName.CONFLICT, Path.REGISTER),
+      createProblemSchemaWithExample(HttpStatusName.CONFLICT, V1Path.REGISTER),
       'User already exists',
     ),
     [HttpStatusCodes.CREATED]: jsonContent(registerResponseSchema, 'Register successful'),
     [HttpStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
-      createProblemSchemaWithExample(HttpStatusName.UNPROCESSABLE_ENTITY, Path.REGISTER, {
+      createProblemSchemaWithExample(HttpStatusName.UNPROCESSABLE_ENTITY, V1Path.REGISTER, {
         schema: registerRequestSchema,
         target: 'json',
       }),

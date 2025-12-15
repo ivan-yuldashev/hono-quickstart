@@ -1,9 +1,9 @@
 import type { InferSelectModel } from 'drizzle-orm';
 import type { PgColumn, PgTable } from 'drizzle-orm/pg-core';
 
-import { getTableName } from 'drizzle-orm';
-
 import type { BaseFieldsName } from '@/shared/types/utils';
+
+import { getTableName } from 'drizzle-orm';
 
 import { BaseRepository } from '@/shared/core/base.repository';
 import { BaseService } from '@/shared/core/base.service';

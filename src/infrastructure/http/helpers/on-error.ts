@@ -1,10 +1,10 @@
 import type { Context } from 'hono';
 
+import type { AppBindings } from '@/app/types';
+
 import { DrizzleQueryError } from 'drizzle-orm';
 import { HTTPException } from 'hono/http-exception';
 import { DatabaseError } from 'pg';
-
-import type { AppBindings } from '@/app/types';
 
 import { ClientErrorStatusCodes, ServerErrorStatusCodes } from '@/shared/constants/http-status-codes';
 import { HttpStatusName } from '@/shared/constants/http-status-name';
@@ -58,8 +58,8 @@ export function onError(error: Error, c: Context<AppBindings>) {
     const { status } = error;
 
     const logLevel = status < 500 && status !== -1 ? LogLevel.WARN : LogLevel.ERROR;
-    const errorCodeName: HttpStatusName | undefined =
-      HTTP_ERROR_CODE_TO_NAME_MAP[status as keyof typeof HTTP_ERROR_CODE_TO_NAME_MAP];
+    const errorCodeName: HttpStatusName | undefined
+      = HTTP_ERROR_CODE_TO_NAME_MAP[status as keyof typeof HTTP_ERROR_CODE_TO_NAME_MAP];
 
     logger[logLevel]({ ...context, err: error }, `Handled HTTPException: ${error.message}`);
 

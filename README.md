@@ -122,16 +122,16 @@ The project uses a **Modular Architecture**. Instead of scattering code across g
 
 ```sh
 src/
-|-- app/ \# Core Hono setup, middleware & AppType
-|-- infrastructure/ \# Technical concerns (DB, Logger, Env)
-|-- modules/ \# Business Domains (Vertical Slices)
-| |-- auth/ \# Example module
+|-- app/ // Core Hono setup, middleware & AppType
+|-- infrastructure/ // Technical concerns (DB, Logger, Env)
+|-- modules/ // Business Domains (Vertical Slices)
+| |-- auth/ // Example module
 | | |-- auth.routes.ts
 | | |-- auth.service.ts
 | | |-- ...
 | |-- users/
 | |-- tasks/
-|-- shared/ \# Shared Utilities, Types, Constants
+|-- shared/ // Shared Utilities, Types, Constants
 ```
 
 - src/app: Contains the core Hono app creation, global middleware registration, and module aggregation.

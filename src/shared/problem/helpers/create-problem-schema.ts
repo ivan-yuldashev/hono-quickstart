@@ -1,7 +1,7 @@
-import { z } from 'zod';
-
 import type { ErrorStatusCode } from '@/shared/problem/types';
 import type { HttpErrorStatusName } from '@/shared/types/statuses';
+
+import { z } from 'zod';
 
 import { HttpStatusCodes } from '@/shared/constants/http-status-codes';
 import { HttpErrorDetails } from '@/shared/problem/constants/http-error-details';

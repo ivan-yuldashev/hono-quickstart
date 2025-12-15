@@ -14,7 +14,7 @@ export const HttpErrorDetails = {
   [HttpStatusName.GONE]:
     'The requested resource is no longer available at the server and no forwarding address is known.',
   [HttpStatusName.HTTP_VERSION_NOT_SUPPORTED]: 'The HTTP version used in your request is not supported by the server.',
-  [HttpStatusName.IM_A_TEAPOT]: "I'm a teapot. (A humorous error code from 1998).",
+  [HttpStatusName.IM_A_TEAPOT]: 'I\'m a teapot. (A humorous error code from 1998).',
   [HttpStatusName.INSUFFICIENT_STORAGE]:
     'The server is unable to store the representation needed to complete the request (e.g., out of disk space).',
   [HttpStatusName.INTERNAL_SERVER_ERROR]: 'An unexpected error occurred on the server while processing your request.',
@@ -27,7 +27,7 @@ export const HttpErrorDetails = {
   [HttpStatusName.NETWORK_AUTHENTICATION_REQUIRED]:
     'You must authenticate to gain network access (e.g., on a captive portal/Wi-Fi hotspot).',
   [HttpStatusName.NOT_ACCEPTABLE]:
-    "The server cannot produce a response matching the list of acceptable values defined in your request's headers.",
+    'The server cannot produce a response matching the list of acceptable values defined in your request\'s headers.',
   [HttpStatusName.NOT_EXTENDED]: 'Further extensions to the request are required for the server to fulfill it.',
   [HttpStatusName.NOT_FOUND]: 'The requested resource could not be found on the server.',
   [HttpStatusName.NOT_IMPLEMENTED]: 'The server does not support the functionality required to fulfill the request.',

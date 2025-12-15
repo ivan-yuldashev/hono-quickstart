@@ -7,7 +7,7 @@ import { isBodyLikeTarget } from '@/shared/problem/helpers/is-body-like-target';
 const escapePointerSeg = (s: string) => s.replace(/~/g, '~0').replace(/\//g, '~1');
 
 function joinPointer(segs: Array<number | string>) {
-  return segs.length ? `/${segs.map((p) => escapePointerSeg(String(p))).join('/')}` : '';
+  return segs.length ? `/${segs.map(p => escapePointerSeg(String(p))).join('/')}` : '';
 }
 
 function getPointerErrors(zodError: z.ZodError<unknown>): PointerError[] {

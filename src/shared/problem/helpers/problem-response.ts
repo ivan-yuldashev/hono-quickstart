@@ -8,8 +8,8 @@ import type { HttpErrorStatusName } from '@/shared/types/statuses';
 import { HttpStatusCodes } from '@/shared/constants/http-status-codes';
 import { createProblem } from '@/shared/problem/create-problem';
 
-type JSONRespondReturn<T extends JSONValue, U extends ClientErrorStatusCode | ServerErrorStatusCode> = Response &
-  TypedResponse<JSONParsed<T>, U, 'json'>;
+type JSONRespondReturn<T extends JSONValue, U extends ClientErrorStatusCode | ServerErrorStatusCode> = Response
+  & TypedResponse<JSONParsed<T>, U, 'json'>;
 
 export function problemResponse<N extends HttpErrorStatusName>(
   c: Context,

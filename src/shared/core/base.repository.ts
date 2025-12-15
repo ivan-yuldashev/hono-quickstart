@@ -1,8 +1,6 @@
 import type { InferSelectModel } from 'drizzle-orm';
 import type { PgColumn, PgTable } from 'drizzle-orm/pg-core';
 
-import { count, eq } from 'drizzle-orm';
-
 import type {
   CountParams,
   CreateParams,
@@ -17,14 +15,15 @@ import type {
 } from '@/shared/types/repository';
 import type { BaseFieldsName, WithoutBaseFields } from '@/shared/types/utils';
 
+import { count, eq } from 'drizzle-orm';
+
 import { orm as db } from '@/infrastructure/db/orm';
 import { sortToSql } from '@/shared/helpers/sort-to-sql';
 
 export class BaseRepository<
   Table extends PgTable & Record<BaseFieldsName, PgColumn>,
   Data extends object = InferSelectModel<Table>,
-> implements Repository<Data>
-{
+> implements Repository<Data> {
   protected readonly table: Table;
 
   constructor(table: Table) {

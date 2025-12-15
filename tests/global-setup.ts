@@ -11,14 +11,15 @@ function cleanup() {
     });
 
     console.info('👋 Cleanup finished.');
-  } catch (error) {
+  }
+  catch (error) {
     console.info('🔴 Error trying to stop Docker containers:', error);
   }
 }
 
 export async function setup() {
   if (!isTest) {
-    throw new Error("NODE_ENV must be 'test'");
+    throw new Error('NODE_ENV must be \'test\'');
   }
 
   let dockerStarted = false;
@@ -39,10 +40,12 @@ export async function setup() {
     });
 
     console.info('✅ DB is ready for tests.');
-  } catch (error) {
+  }
+  catch (error) {
     if (error instanceof Error) {
       console.error('🔴 Error during globalSetup:', error.message);
-    } else {
+    }
+    else {
       console.error('🔴 Unknown error during globalSetup:', error);
     }
 

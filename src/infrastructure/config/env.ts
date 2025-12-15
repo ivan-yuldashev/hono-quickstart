@@ -63,8 +63,8 @@ const isDevelopment = env.NODE_ENV === NodeEnv.DEVELOPMENT;
 const isProduction = env.NODE_ENV === NodeEnv.PRODUCTION;
 const isTest = env.NODE_ENV === NodeEnv.TEST;
 
-const databaseUri =
-  typeof env.DATABASE_URI === 'string'
+const databaseUri
+  = typeof env.DATABASE_URI === 'string'
     ? env.DATABASE_URI
     : `postgresql://${env.DATABASE_USER}:${env.DATABASE_PASSWORD}@localhost:${env.DATABASE_PORT}/${env.DATABASE_NAME}`;
 

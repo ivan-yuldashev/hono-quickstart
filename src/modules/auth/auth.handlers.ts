@@ -1,12 +1,12 @@
-import { deleteCookie, getCookie } from 'hono/cookie';
-
 import type { AppRouteHandler } from '@/app/types';
 import type { LoginRoute, LogoutRoute, RefreshRoute, RegisterRoute } from '@/modules/auth/auth.routes';
+
+import { deleteCookie, getCookie } from 'hono/cookie';
 
 import { env } from '@/infrastructure/config/env';
 import { setCookie } from '@/modules/auth/helpers/set-cookie';
 import { HttpStatusCodes } from '@/shared/constants/http-status-codes';
-import { Path } from '@/shared/constants/path';
+import { V1Path } from '@/shared/constants/paths';
 import { problem } from '@/shared/problem/problem';
 import { isNil } from '@/shared/utils/is-nil';
 
@@ -36,7 +36,7 @@ export const logout: AppRouteHandler<LogoutRoute> = async (c) => {
   }
 
   await auth.logout(rawRefreshToken);
-  deleteCookie(c, env.COOKIE_NAME, { path: Path.REFRESH_TOKEN });
+  deleteCookie(c, env.COOKIE_NAME, { path: V1Path.REFRESH_TOKEN });
 
   return c.body(null, HttpStatusCodes.NO_CONTENT);
 };

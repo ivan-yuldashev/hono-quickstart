@@ -1,9 +1,12 @@
-export enum Path {
-  HEALTH = '/health',
+export enum RootPath {
+  V1 = '/api/v1',
 
   DOC = '/doc',
+  HEALTH = '/health',
   OPEN_API = '/openapi',
+};
 
+export enum V1Path {
   // Task
   TASK = '/tasks/{id}',
   TASKS = '/tasks',
@@ -13,4 +16,4 @@ export enum Path {
   LOGOUT = '/logout',
   REFRESH_TOKEN = '/refresh-token',
   REGISTER = '/register',
-}
+} ;

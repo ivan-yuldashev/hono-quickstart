@@ -1,7 +1,7 @@
+import type { AppBindings } from '@/app/types';
+
 import { createMiddleware } from 'hono/factory';
 import { z } from 'zod';
-
-import type { AppBindings } from '@/app/types';
 
 import { SECURITY_CONFIG } from '@/modules/auth/constants/security-config';
 import { extractJwt } from '@/modules/auth/helpers/extract-jwt';

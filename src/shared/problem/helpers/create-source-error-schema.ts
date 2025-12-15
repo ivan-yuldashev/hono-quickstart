@@ -1,6 +1,6 @@
-import z from 'zod';
-
 import type { NonBodyTarget } from '@/shared/problem/types';
+
+import z from 'zod';
 
 import { sourceErrorSchema } from '@/shared/problem/schemas/base-problem-schema';
 

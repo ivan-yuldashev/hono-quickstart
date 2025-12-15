@@ -5,7 +5,8 @@ export async function onShutdown() {
   try {
     await pool.end();
     pino.info('DB pool closed successfully.');
-  } catch (_error) {
+  }
+  catch (_error) {
     pino.error('Error closing the DB pool.');
   }
 

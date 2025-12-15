@@ -1,9 +1,9 @@
 import type { ValidationTargets } from 'hono';
 
-import { z } from '@hono/zod-openapi';
-
 import type { TargetValue } from '@/shared/problem/types';
 import type { HttpErrorStatusName } from '@/shared/types/statuses';
+
+import { z } from '@hono/zod-openapi';
 
 import { createProblem } from '@/shared/problem/create-problem';
 import { createProblemSchema } from '@/shared/problem/helpers/create-problem-schema';

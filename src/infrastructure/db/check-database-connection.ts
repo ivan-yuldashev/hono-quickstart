@@ -5,13 +5,15 @@ export async function checkDatabaseConnection() {
   try {
     await orm.execute('SELECT 1');
     pino.info('The database has been successfully connected.');
-  } catch (error) {
+  }
+  catch (error) {
     const errorMessage = 'Failed to connect to the database during startup check.';
     console.error(`🚫 ${errorMessage}`);
 
     if (error instanceof Error) {
       pino.fatal({ err: error }, errorMessage);
-    } else {
+    }
+    else {
       pino.fatal({ errorDetails: error }, errorMessage);
     }
 

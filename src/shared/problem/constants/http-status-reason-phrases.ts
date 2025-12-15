@@ -43,7 +43,7 @@ export const ClientErrorReasonPhrases = {
   [HttpStatusName.FAILED_DEPENDENCY]: 'Failed Dependency',
   [HttpStatusName.FORBIDDEN]: 'Forbidden',
   [HttpStatusName.GONE]: 'Gone',
-  [HttpStatusName.IM_A_TEAPOT]: "I'm a teapot",
+  [HttpStatusName.IM_A_TEAPOT]: 'I\'m a teapot',
   [HttpStatusName.LENGTH_REQUIRED]: 'Length Required',
   [HttpStatusName.LOCKED]: 'Locked',
   [HttpStatusName.METHOD_NOT_ALLOWED]: 'Method Not Allowed',

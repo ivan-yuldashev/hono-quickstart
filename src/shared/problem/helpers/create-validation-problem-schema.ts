@@ -1,7 +1,7 @@
-import { z } from 'zod';
-
 import type { TargetValue } from '@/shared/problem/types';
 import type { HttpErrorStatusName } from '@/shared/types/statuses';
+
+import { z } from 'zod';
 
 import { createProblemSchema } from '@/shared/problem/helpers/create-problem-schema';
 import { createSourceErrorSchema } from '@/shared/problem/helpers/create-source-error-schema';

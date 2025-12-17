@@ -35,6 +35,7 @@ An opinionated, production-focused starter for Hono. This template provides an e
 - **Modular Architecture**: Domain-driven structure.
 - Graceful shutdown with [Terminus](https://github.com/godaddy/terminus)
 - Unified error format
+- **Context-Aware Transactions**: Clean transaction management using `AsyncLocalStorage` (no argument drilling).
 
 ## **Philosophy**
 
@@ -154,14 +155,14 @@ This factory automatically creates a BaseService for every Drizzle table defined
 You can access any auto-generated service directly from the context using c.get('services').
 
 ```sh
-export const list: AppRouteHandler\<ListRoute\> \= async (c) \=\> {
-const { limit, offset } \= c.req.valid('query');
+export const list: AppRouteHandler<ListRoute> = async (c) = {
+const { limit, offset } = c.req.valid('query');
 
 // Access the dynamic service for 'tasks'
-const { tasks } \= c.get('services');
+const { tasks } = c.get('services');
 
 // Uses BaseService.find() which handles pagination automatically
-const data \= await tasks.find({ limit, offset });
+const data = await tasks.find({ limit, offset });
 
 return c.json(data, HttpStatusCodes.OK);
 };
@@ -217,6 +218,35 @@ For complex business logic that goes beyond simple CRUD (e.g., Authentication, T
   - Orchestrates operations between UserRepository and TokenRepository.
   - **Login/Register:** Handles password verification (using safe comparison) and hashing.
   - **Token Rotation:** Implements **Refresh Token Rotation**. If a revoked token is used, the system detects a potential breach and revokes all tokens for that user (Reuse Detection).
+
+#### **3\. Transaction Management**
+
+The project uses a Context-Aware Transaction pattern implemented via Node.js AsyncLocalStorage. This solves the common problem of "argument drilling" (passing tx objects down the call stack).
+
+How it works: You wrap your business logic in a `transaction(async () => { ... })` helper.
+
+Automatic Context: Repositories automatically detect if they are running inside a transaction scope and switch to the transaction executor.
+
+Isolation: Transaction contexts are isolated to the current request scope.
+
+Example:
+
+```sh
+// src/modules/auth/auth.service.ts
+import { transaction } from '@/shared/lib/transaction-manager';
+
+public async refresh(token: string) {
+// ... validation logic ...
+
+// All repository calls inside this block share the same transaction
+return await transaction(async () => {
+await this.tokenRepository.revokeOld(token);
+const newTokens = await generateTokens(user);
+await this.tokenRepository.create(newTokens);
+return newTokens;
+});
+}
+```
 
 ## **Testing**
 
@@ -309,6 +339,9 @@ This project is based on the original work of [w3cj/hono-open-api-starter](https
   - [Themes / Layout](https://github.com/scalar/scalar/blob/main/documentation/themes.md)
   - [Configuration](https://github.com/scalar/scalar/blob/main/documentation/configuration.md)
 
+````
+
 ```
 
 ```
+````

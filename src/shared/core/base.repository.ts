@@ -17,21 +17,19 @@ import type { BaseFieldsName, WithoutBaseFields } from '@/shared/types/utils';
 
 import { count, eq } from 'drizzle-orm';
 
-import { orm as db } from '@/infrastructure/db/orm';
+import { getExecutor } from '@/infrastructure/db/context';
 import { sortToSql } from '@/shared/helpers/sort-to-sql';
 
 export class BaseRepository<
   Table extends PgTable & Record<BaseFieldsName, PgColumn>,
   Data extends object = InferSelectModel<Table>,
 > implements Repository<Data> {
-  protected readonly table: Table;
-
-  constructor(table: Table) {
-    this.table = table;
-  }
+  constructor(protected readonly table: Table) {}
 
   async count({ where }: CountParams) {
-    const [countResult] = await db
+    const executor = getExecutor();
+
+    const [countResult] = await executor
       .select({ value: count() })
       .from(this.table as PgTable)
       .where(where);
@@ -40,7 +38,9 @@ export class BaseRepository<
   }
 
   async create<D extends WithoutBaseFields<Data>>({ data }: CreateParams<StrictShape<D, WithoutBaseFields<Data>>>) {
-    const [insertedItem] = await db
+    const executor = getExecutor();
+
+    const [insertedItem] = await executor
       .insert(this.table as PgTable)
       .values(data)
       .returning();
@@ -49,7 +49,9 @@ export class BaseRepository<
   }
 
   async deleteBy({ where }: DeleteByParams) {
-    const deletedItems = await db
+    const executor = getExecutor();
+
+    const deletedItems = await executor
       .delete(this.table as PgTable)
       .where(where)
       .returning();
@@ -58,8 +60,10 @@ export class BaseRepository<
   }
 
   async deleteById({ id }: DeleteByIdParams<Data>) {
-    const [deletedItem] = await db
-      .delete(this.table as PgTable)
+    const executor = getExecutor();
+
+    const [deletedItem] = await executor
+      .delete(this.table)
       .where(eq(this.table.id, id))
       .returning();
 
@@ -67,7 +71,9 @@ export class BaseRepository<
   }
 
   async findBy({ limit, offset, sort, where }: FindByParams<Data>) {
-    const results = await db
+    const executor = getExecutor();
+
+    const results = await executor
       .select()
       .from(this.table as PgTable)
       .where(where)
@@ -79,7 +85,9 @@ export class BaseRepository<
   }
 
   async findById({ id }: FindByIdParams<Data>) {
-    const [item] = await db
+    const executor = getExecutor();
+
+    const [item] = await executor
       .select()
       .from(this.table as PgTable)
       .where(eq(this.table.id, id));
@@ -91,8 +99,10 @@ export class BaseRepository<
     data,
     where,
   }: UpdateByParams<StrictShape<D, WithoutBaseFields<Data>>>) {
-    const updatedItems = await db
-      .update(this.table as PgTable)
+    const executor = getExecutor();
+
+    const updatedItems = await executor
+      .update(this.table)
       .set(data)
       .where(where)
       .returning();
@@ -104,7 +114,9 @@ export class BaseRepository<
     data,
     id,
   }: UpdateByIdParams<StrictShape<D, WithoutBaseFields<Data>>>) {
-    const [updatedItem] = await db
+    const executor = getExecutor();
+
+    const [updatedItem] = await executor
       .update(this.table as PgTable)
       .set(data)
       .where(eq(this.table.id, id))

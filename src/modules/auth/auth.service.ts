@@ -12,6 +12,7 @@ import { getDummyHash } from '@/modules/auth/helpers/get-dummy-hash';
 import { hashPassword } from '@/modules/auth/helpers/hash-password';
 import { verifyPassword } from '@/modules/auth/helpers/verify-password';
 import { verifyToken } from '@/modules/auth/helpers/verify-token';
+import { transaction } from '@/shared/helpers/transaction-manager';
 import { isNil } from '@/shared/utils/is-nil';
 
 const refreshTokenSchema = z.object({
@@ -100,25 +101,25 @@ export class AuthService {
       return null;
     }
 
-    // TODO: Use transaction
+    return await transaction(async () => {
+      await this.tokenRepository.updateBy({
+        data: { revoked: true },
+        where: eq(refreshTokens.jti, jti),
+      });
 
-    await this.tokenRepository.updateBy({
-      data: { revoked: true },
-      where: eq(refreshTokens.jti, jti),
+      const { accessToken, jti: newJti, refreshExpiresAt, refreshToken } = await generateTokens(userId);
+
+      await this.tokenRepository.create({
+        data: {
+          expiresAt: refreshExpiresAt,
+          jti: newJti,
+          revoked: false,
+          userId,
+        },
+      });
+
+      return { accessToken, refreshExpiresAt, refreshToken };
     });
-
-    const { accessToken, jti: newJti, refreshExpiresAt, refreshToken } = await generateTokens(userId);
-
-    await this.tokenRepository.create({
-      data: {
-        expiresAt: refreshExpiresAt,
-        jti: newJti,
-        revoked: false,
-        userId,
-      },
-    });
-
-    return { accessToken, refreshExpiresAt, refreshToken };
   }
 
   public async register({ email, password }: RegisterData) {

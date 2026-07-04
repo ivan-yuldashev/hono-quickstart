@@ -339,9 +339,3 @@ This project is based on the original work of [w3cj/hono-open-api-starter](https
   - [Themes / Layout](https://github.com/scalar/scalar/blob/main/documentation/themes.md)
   - [Configuration](https://github.com/scalar/scalar/blob/main/documentation/configuration.md)
 
-````
-
-```
-
-```
-````
